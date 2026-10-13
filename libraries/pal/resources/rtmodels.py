@@ -1,6 +1,8 @@
 import os
 
-__rtModelDirPath = os.environ['RTMODELS_DIR']
+#__rtModelDirPath = os.environ['RTMODELS_DIR']
+__rtModelDirPath = './resources/rt_models'
+
 
 # QCar1 RT Models
 QCAR = os.path.normpath(
