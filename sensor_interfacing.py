@@ -14,13 +14,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 
-from libraries.pal.products.qcar import QCar, IS_PHYSICAL_QCAR
-from libraries.pal.utilities.stream import BasicStream , Timeout
-from libraries.pal.utilities.scope import MultiScope, Signal
+from Libraries.pal.products.qcar import QCar, IS_PHYSICAL_QCAR
+from Libraries.pal.utilities.stream import BasicStream , Timeout
+from Libraries.pal.utilities.scope import MultiScope, Signal
 from threading import Thread
 
 if not IS_PHYSICAL_QCAR:
-    import qlabs_setup as qlabs_setup
+    import scripts.qlabs_setup as qlabs_setup
     qlabs_setup.setup()
 
 Signal.maxChunks = 1500

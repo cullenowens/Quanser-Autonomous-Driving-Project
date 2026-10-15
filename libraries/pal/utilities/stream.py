@@ -443,8 +443,7 @@ class BasicStream:
         except StreamError as e:
             print(e.get_error_message())
             self.receiveFlag = -1
-        finally:
-            return self.receiveFlag, self.bytesReceived
+        return self.receiveFlag, self.bytesReceived
 
     def send(self, buffer):
         """
@@ -489,5 +488,4 @@ class BasicStream:
         except StreamError as e:
             print(e.get_error_message())
             self.sentFlag = -1 # If an error occurs, set sentFlag to -1 for user to check
-        finally:
-            return self.sentFlag
+        return self.sentFlag

@@ -19,11 +19,11 @@ try:
 except ImportError:
     from quanser.communications import Timeout
 
-from libraries.pal.utilities.vision import Camera2D, Camera3D
-from libraries.pal.utilities.lidar import Lidar
-from libraries.pal.utilities.stream import BasicStream
+from Libraries.pal.utilities.vision import Camera2D, Camera3D
+from Libraries.pal.utilities.lidar import Lidar
+from Libraries.pal.utilities.stream import BasicStream
 # from pal.utilities.math import Calculus
-from libraries.pal.products.qcar_config import  QCar_check
+from Libraries.pal.products.qcar_config import  QCar_check
 from os.path import realpath, join, exists , dirname
 
 IS_PHYSICAL_QCAR = ('nvidia' == os.getlogin()) \

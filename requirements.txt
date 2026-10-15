@@ -4,3 +4,6 @@ numpy==2.3.5
 opencv-python==5.0.0.93
 pycparser==3.11
 pygit2==1.20.1
+matplotlib
+pyqtgraph
+PyQt6
