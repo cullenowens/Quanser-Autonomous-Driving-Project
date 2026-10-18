@@ -1,10 +1,7 @@
-import matplotlib.pyplot as plt
-import numpy as np
 import time
 
 from Libraries.pal.products.qcar import QCar, IS_PHYSICAL_QCAR
-from Libraries.pal.utilities.stream import BasicStream , Timeout
-from Libraries.pal.utilities.scope import MultiScope, Signal
+from Libraries.pal.utilities.scope import Signal
 from threading import Thread
 
 if not IS_PHYSICAL_QCAR:
@@ -18,7 +15,6 @@ class sensorInterfacing():
     def __init__(self, loopTime:int, readRate=120):
 
         # QCar DAQ configuration
-        self.mode     = "read"
         self.readRate = readRate
         self.loopTime = loopTime
 
@@ -38,14 +34,11 @@ class sensorInterfacing():
         # Run the data logging only for the length of time specified
         i = 0
         while self.timeStamp < self.loopTime:
-            if self.mode == "read":
-                if self.timeStamp < int(self.loopTime/2):
-                    self.myQCar.write(throttle=0.9, steering=0.5)
-                if self.timeStamp >= int(self.loopTime/2):
-                    self.myQCar.write(throttle=0.9, steering=-0.5)
+            if self.timeStamp < int(self.loopTime/2):
+                self.myQCar.write(throttle=0.9, steering=0.5)
+            elif self.timeStamp >= int(self.loopTime/2):
+                self.myQCar.write(throttle=0.9, steering=-0.5)
 
-
-    # ============  SECTION B - Sensor Reading and Data Parsing =============
             self.timeStamp = self.elapsedTime(t0)
             i += 1
 
@@ -62,23 +55,8 @@ class sensorInterfacing():
 
 def main():
     try:
-        '''
-        INPUTS
-        taskRate = Int The frequency (Hz) at which the read/write operation
-                will be performed.
-        specifiedSamples = Int Number of samples saved for statistical analysis of
-                        sensor data.
-        '''
-        # ========= SECTION A - Student Inputs for Image Interpretation ===========
         sensorLab = sensorInterfacing(8)
 
-        ''' Students decide the activity they would like to do in the
-        sensor interfacing lab
-        List of current activities:
-        - read (sensor interfacing skills activity)
-        - sensor_stats (sensor characterization skill activity)
-        '''
-        sensorMode = "read"
         sensorLab.start()
     finally:
         if not IS_PHYSICAL_QCAR:

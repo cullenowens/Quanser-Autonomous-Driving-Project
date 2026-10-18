@@ -55,6 +55,44 @@ def setup(
     # Start spawn model
     QLabsRealTime().start_real_time_model(rtModel)
 
+def reset(
+        initialPosition=[16.6, 2, 0.000],
+        initialOrientation=[0,0,np.pi/2],
+        rtModel=rtmodels.QCAR
+):
+    os.system('cls')
+    qlabs = QuanserInteractiveLabs()
+    if (not qlabs.open("localhost")):
+        sys.exit()  
+        return
+    # Delete any previous QCar instances and stop any running spawn models
+    qlabs.destroy_all_spawned_actors()
+    QLabsRealTime().terminate_all_real_time_models()
+
+    # Spawn a QCar at the given initial pose
+    if QCAR_CONFIG['cartype']==1:
+        hqcar = QLabsQCar(qlabs)
+        rtModel = rtmodels.QCAR
+    elif QCAR_CONFIG['cartype']==2:
+        hqcar = QLabsQCar2(qlabs)
+        rtModel = rtmodels.QCAR2
+        
+    hqcar.spawn_id(
+        actorNumber=0,
+        location=initialPosition,
+        rotation=initialOrientation,
+        waitForConfirmation=True
+    )
+
+    # Create a new camera view and attach it to the QCar
+    hcamera = QLabsFreeCamera(qlabs)
+    hcamera.spawn([8.484, 1.973, 12.209], [-0, 0.748, 0.792])
+    hqcar.possess()
+
+
+    # Start spawn model
+    QLabsRealTime().start_real_time_model(rtModel)
+
 def terminate():
     QLabsRealTime().terminate_real_time_model("QCar_Workspace")
     QLabsRealTime().terminate_real_time_model("QCar2_Workspace")

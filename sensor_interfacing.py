@@ -42,11 +42,11 @@ class sensorInterfacing():
         self.myQCar = QCar(frequency = self.readRate, readMode = 1)
 
         # Variable for saving sensor readings
-        self.accelerometerData = np.zeros((3))
-        self.gyroscopeData     = np.zeros((3))
+        self.accelerometerData = np.zeros(3)
+        self.gyroscopeData     = np.zeros(3)
         self.plotData = np.zeros((self.samples,6))
 
-        self.time = np.zeros((int(specifiedSamples)))
+        self.time = np.zeros(self.samples)
 
         # Define scopes for plotting
         txt = "Accelerometer Data Scope"
@@ -82,7 +82,7 @@ class sensorInterfacing():
     def sensor_read(self):
         t0       = time.time()
         loopTime = self.samples*(1/self.readRate) # Simulation Time
-        print("Sim time: ",loopTime)
+        print(f"Sim time: {loopTime:.1f} seconds")
         self.timeStamp = 0
 
         # Run the data logging only for the length of time specified
