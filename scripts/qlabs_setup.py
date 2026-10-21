@@ -7,8 +7,8 @@ from qvl.qcar import QLabsQCar
 from qvl.qcar2 import QLabsQCar2
 from qvl.free_camera import QLabsFreeCamera
 from qvl.real_time import QLabsRealTime
-import Libraries.pal.resources.rtmodels as rtmodels
-from Libraries.pal.products.qcar import QCAR_CONFIG
+import libraries.pal.resources.rtmodels as rtmodels
+from libraries.pal.products.qcar import QCAR_CONFIG
 
 def setup(
         initialPosition=[16.6, 2, 0.000],
