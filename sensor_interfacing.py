@@ -44,11 +44,12 @@ class sensorInterfacing():
         # Variable for saving sensor readings
         self.accelerometerData = np.zeros(3)
         self.gyroscopeData     = np.zeros(3)
-        self.plotData = np.zeros((self.samples,6))
 
+        #Preallocate Arrays for recording data
+        self.plotData = np.zeros((self.samples,6))
         self.time = np.zeros(self.samples)
 
-        # Define scopes for plotting
+        '''# Define scopes for plotting
         txt = "Accelerometer Data Scope"
         self.accelPlot = MultiScope(title=txt, rows=1, cols=1, fps=taskRate)
         self.accelPlot.addAxis(row = 0,col= 0,
@@ -72,7 +73,7 @@ class sensorInterfacing():
         self.gyroPlot.axes[0].attachSignal(name = 'Gyro in x')
         self.gyroPlot.axes[0].attachSignal(name = 'Gyro in y')
         self.gyroPlot.axes[0].attachSignal(name = 'Gyro in z')
-        self.gyroPlot.axes[0].yLim = (-2.5, 2.5)
+        self.gyroPlot.axes[0].yLim = (-2.5, 2.5)'''
 
 
     # Timing function used to send timestamp to sigmoid generator.
@@ -87,39 +88,92 @@ class sensorInterfacing():
 
         # Run the data logging only for the length of time specified
         i = 0
-        while i < self.samples:
-            if self.mode == "read":
-                if self.timeStamp < int(loopTime/2):
-                    self.myQCar.write(throttle=0.075, steering=0.5)
-                if self.timeStamp >= int(loopTime/2):
-                    self.myQCar.write(throttle=0.075, steering=-0.5)
+        try:
+            while i < self.samples:
+                if self.mode == "read":
+                    if self.timeStamp < loopTime/2:
+                        self.myQCar.write(throttle=0.075, steering=0.5)
+                    if self.timeStamp >= loopTime/2:
+                        self.myQCar.write(throttle=0.075, steering=-0.5)
 
 
-    # ============  SECTION B - Sensor Reading and Data Parsing =============
-            self.timeStamp = self.elapsedTime(t0)
+        # ============  SECTION B - Sensor Reading and Data Parsing =============
+                self.timeStamp = self.elapsedTime(t0)
 
-            # implementation for parsing out the IMU information
-            
-            # Data sent to scope class for visualization
-            self.accelPlot.axes[0].sample(self.timeStamp,
-                                [self.accelerometerData[0],
-                                self.accelerometerData[1],
-                                self.accelerometerData[2]].copy())
+                # implementation for parsing out the IMU information
+                self.myQCar.read()
+                accel_data = self.myQCar.accelerometer
+                gyro_data = self.myQCar.gyroscope
+                self.plotData[i, 0:3] = accel_data
+                self.plotData[i, 3:6] = gyro_data
+                self.time[i] = self.timeStamp
 
-            self.gyroPlot.axes[0].sample(self.timeStamp,
-                                [self.gyroscopeData[0],
-                                self.gyroscopeData[1],
-                                self.gyroscopeData[2]].copy())
+                '''# Data sent to scope class for visualization
+                self.accelPlot.axes[0].sample(self.timeStamp,
+                                    [self.accelerometerData[0],
+                                    self.accelerometerData[1],
+                                    self.accelerometerData[2]].copy())
 
-            i += 1
+                self.gyroPlot.axes[0].sample(self.timeStamp,
+                                    [self.gyroscopeData[0],
+                                    self.gyroscopeData[1],
+                                    self.gyroscopeData[2]].copy())
+                                    
+                self.accelPlot.refresh()
+                self.gyroPlot.refresh()
+                                    '''
 
-        self.myQCar.write(throttle=0, steering=0)
+                i += 1
+        finally:
+            self.myQCar.write(throttle=0, steering=0)
+            print(f"Collected {i} Samples")
+            print("Time:", self.time[:10])
+            print("Time range:", self.time.min(), self.time.max())
+
+            print("Accelerometer samples:\n", self.plotData[:5, 0:3])
+            print("Gyroscope samples:\n", self.plotData[:5, 3:6])
+
+        if self.mode == "read":
+            self.plot_sensor_data()
+
+    def plot_sensor_data(self):
+        # Accelerometer data
+        fig1, ax1 = plt.subplots()
+
+        ax1.plot(self.time, self.plotData[:, 0], label="Accel X")
+        ax1.plot(self.time, self.plotData[:, 1], label="Accel Y")
+        ax1.plot(self.time, self.plotData[:, 2], label="Accel Z")
+
+        ax1.set_title("Accelerometer Data")
+        ax1.set_xlabel("Time (s)")
+        ax1.set_ylabel(r"Acceleration (m/s$^2$)")
+        ax1.set_ylim(-11, 11)
+        ax1.grid()
+        ax1.legend()
+
+        # Gyroscope data
+        fig2, ax2 = plt.subplots()
+
+        ax2.plot(self.time, self.plotData[:, 3], label="Gyro X")
+        ax2.plot(self.time, self.plotData[:, 4], label="Gyro Y")
+        ax2.plot(self.time, self.plotData[:, 5], label="Gyro Z")
+
+        ax2.set_title("Gyroscope Data")
+        ax2.set_xlabel("Time (s)")
+        ax2.set_ylabel("Angular velocity (rad/s)")
+        ax2.set_ylim(-2.5, 2.5)
+        ax2.grid()
+        ax2.legend()
+
+        plt.show()
 
     def sensor_stats(self):
 
         # ========== SECTION C - Statistical Properties ==========
-        mu = np.zeros(6)
-        var = np.zeros(6)
+        '''mu = np.zeros(6)
+        var = np.zeros(6)'''
+        mu = np.mean(self.plotData, axis=0)
+        var = np.mean(self.plotData, axis=0)
         
         # implementation for calculating miu and variance
 
@@ -147,27 +201,13 @@ class sensorInterfacing():
 
 
     def start(self, mode = "read"):
+        self.mode = mode
 
         if mode == "read":
-            mainThread = Thread(target=self.sensor_read)
-            mainThread.start()
-
-            while mainThread.is_alive():
-                self.accelPlot.refresh()
-                self.gyroPlot.refresh()
-
-            time.sleep(15)
-
+            self.sensor_read()
 
         if mode == "sensor_stats":
-            self.mode = mode
-            mainThread = Thread(target=self.sensor_read)
-            mainThread.start()
-
-            while mainThread.is_alive():
-                self.accelPlot.refresh()
-                self.gyroPlot.refresh()
-
+            self.sensor_read()
             self.sensor_stats()
 
 #endregion
@@ -185,8 +225,7 @@ def main():
                         sensor data.
         '''
         # ========= SECTION A - Student Inputs for Image Interpretation ===========
-        sensorLab = sensorInterfacing(taskRate = 120,
-                            specifiedSamples = 600)
+        sensorLab = sensorInterfacing(taskRate = 120, specifiedSamples = 600)
 
         ''' Students decide the activity they would like to do in the
         sensor interfacing lab

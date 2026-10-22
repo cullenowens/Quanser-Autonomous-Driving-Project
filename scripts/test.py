@@ -5,7 +5,7 @@ from Libraries.pal.utilities.scope import Signal
 from threading import Thread
 
 if not IS_PHYSICAL_QCAR:
-    import scripts.qlabs_setup as qlabs_setup
+    import qlabs_setup as qlabs_setup
     qlabs_setup.setup()
 
 Signal.maxChunks = 1500
