@@ -59,9 +59,9 @@ class KeyboardInterfacing():
                 keys = pressed_keys.copy()
 
             #Calculate controls
-            self.throttle = 0.5 if 'w' in keys else 0
-            self.reverse = -0.5 if 's' in keys else 0
-            self.steering = 1 if 'a' in keys else -1 if 'd' in keys else 0
+            self.throttle = 0.1 if 'w' in keys else 0
+            self.reverse = -0.1 if 's' in keys else 0
+            self.steering = 0.5 if 'a' in keys else -0.5 if 'd' in keys else 0
 
             if 'esc' in keys:
                 self.myQCar.write(throttle=0, steering=0)

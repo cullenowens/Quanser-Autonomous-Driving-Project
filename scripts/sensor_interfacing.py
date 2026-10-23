@@ -49,7 +49,7 @@ class sensorInterfacing():
         self.plotData = np.zeros((self.samples,6))
         self.time = np.zeros(self.samples)
 
-        '''# Define scopes for plotting
+        # Define scopes for plotting
         txt = "Accelerometer Data Scope"
         self.accelPlot = MultiScope(title=txt, rows=1, cols=1, fps=taskRate)
         self.accelPlot.addAxis(row = 0,col= 0,
@@ -73,7 +73,7 @@ class sensorInterfacing():
         self.gyroPlot.axes[0].attachSignal(name = 'Gyro in x')
         self.gyroPlot.axes[0].attachSignal(name = 'Gyro in y')
         self.gyroPlot.axes[0].attachSignal(name = 'Gyro in z')
-        self.gyroPlot.axes[0].yLim = (-2.5, 2.5)'''
+        self.gyroPlot.axes[0].yLim = (-2.5, 2.5)
 
 
     # Timing function used to send timestamp to sigmoid generator.
@@ -102,13 +102,17 @@ class sensorInterfacing():
 
                 # implementation for parsing out the IMU information
                 self.myQCar.read()
-                accel_data = self.myQCar.accelerometer
-                gyro_data = self.myQCar.gyroscope
-                self.plotData[i, 0:3] = accel_data
-                self.plotData[i, 3:6] = gyro_data
+                self.accelerometerData = self.myQCar.accelerometer
+                self.gyroscopeData = self.myQCar.gyroscope
+
+                self.plotData[i, 0:3] = self.accelerometerData
+                self.plotData[i, 3:6] = self.gyroscopeData
                 self.time[i] = self.timeStamp
 
-                '''# Data sent to scope class for visualization
+                # Data sent to scope class for visualization
+                '''self.accelPlot.axes[0].sample(self.timeStamp,self.accelerometerData.copy())
+                self.gyroPlot.axes[0].sample(self.timeStamp,self.gyroscopeData.copy())'''
+
                 self.accelPlot.axes[0].sample(self.timeStamp,
                                     [self.accelerometerData[0],
                                     self.accelerometerData[1],
@@ -121,20 +125,18 @@ class sensorInterfacing():
                                     
                 self.accelPlot.refresh()
                 self.gyroPlot.refresh()
-                                    '''
 
                 i += 1
         finally:
             self.myQCar.write(throttle=0, steering=0)
             print(f"Collected {i} Samples")
-            print("Time:", self.time[:10])
+            print("Time:", self.timeStamp)
             print("Time range:", self.time.min(), self.time.max())
 
-            print("Accelerometer samples:\n", self.plotData[:5, 0:3])
-            print("Gyroscope samples:\n", self.plotData[:5, 3:6])
-
+        #If using matplotlib instead of Multiscope
         if self.mode == "read":
-            self.plot_sensor_data()
+            #self.plot_sensor_data()
+            pass
 
     def plot_sensor_data(self):
         # Accelerometer data
@@ -170,8 +172,6 @@ class sensorInterfacing():
     def sensor_stats(self):
 
         # ========== SECTION C - Statistical Properties ==========
-        '''mu = np.zeros(6)
-        var = np.zeros(6)'''
         mu = np.mean(self.plotData, axis=0)
         var = np.mean(self.plotData, axis=0)
         
