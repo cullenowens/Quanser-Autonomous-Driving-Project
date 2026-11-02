@@ -230,8 +230,9 @@ class ImageInterpretation():
             return None, None
 
         # imageSize is (width, height); gray.shape is (height, width), so use imageSize
+        flags = cv2.CALIB_ZERO_TANGENT_DIST | cv2.CALIB_FIX_K3
         rms, K, dist, rvecs, tvecs = cv2.calibrateCamera(
-            objpoints, imgpoints, tuple(int(v) for v in imageSize), None, None)
+            objpoints, imgpoints, tuple(int(v) for v in imageSize), None, None, flags=flags)
         for i in range(len(objpoints)):
             proj, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], K, dist)
             a = imgpoints[i].reshape(-1, 2)
@@ -275,18 +276,25 @@ class ImageInterpretation():
 
             # ============= SECTION C1 - Image Correction =============
             print("Implement image correction for raw camera image... ")
-            undistortedImage = image
+            undistortedImage = self.camCalibTool.undistort_img(image, cameraIntrinsics, cameraDistortion)
 
             # ============= SECTION C2 - Image Filtering =============
             print("Implement image filter on distortion corrected image... ")
-            filteredImage = image
+            filteredImage = self.camCalibTool.do_canny(undistortedImage)
 
             # ============= SECTION C3 - Feature Extraction =============
             print("Extract line information from filtered image... ")
-            linesImage, lines = image, []
+            houghLines = cv2.HoughLinesP(filteredImage, 1, np.pi / 180, 10, minLineLength=1)
+
+            linesImage = np.copy(undistortedImage)
+            lines = []
+            if houghLines is not None:
+                lines = houghLines.reshape(-1, 4)
+                for x1, y1, x2, y2 in lines:
+                    cv2.line(linesImage, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255), 2)
 
             print("Display image with lines found... ")
-            imageDisplayed = image
+            imageDisplayed = linesImage
 
             # Use cv2 to display current image
             cv2.imshow("Lines Image", imageDisplayed)
@@ -339,22 +347,15 @@ def main():
         - Calibrate   (interfacing skill activity)
         - Line Detect (line detection skill activity)
         '''
-        camMode = "Calibrate"
+        camMode = "Line Detect"
 
         # ========= SECTION D - Camera Intrinsics and Distortion Coeffs. =========
-        cameraMatrix  = np.array([
-            [495.84,   0.00, 408.03],
-            [0.00, 454.60, 181.21],
-            [0.00,   0.00,   1.00]
-        ])
-
-        distortionCoefficients = np.array([
-            -0.57513,
-            0.37175,
-            -0.00489,
-            -0.00277,
-            -0.11136
-        ])
+        calib = {
+            "csi":  (np.array([[352.97, 0, 408.75], [0, 351.20, 209.73], [0, 0, 1]]),
+                    np.array([-0.79513, 1.27915, 0, 0, 0])),
+            "D435": (np.array([[463.22, 0.00, 316.51], [0.00, 463.10, 233.68], [0.00, 0.00, 1.00]]),
+                    np.array([0.05393, -0.16119, 0, 0, 0])),
+        }
 
         if camMode == "Calibrate":
             try:
@@ -371,6 +372,7 @@ def main():
             try:
                 text = "Specify the camera used for line detection (csi/D435): "
                 cameraType = input(text)
+                cameraMatrix, distortionCoefficients = calib[cameraType]
                 if cameraType == "csi" :
                     cameraInterfacingLab.CSICamIntrinsics = cameraMatrix
                     cameraInterfacingLab.CSIDistParam     = distortionCoefficients
