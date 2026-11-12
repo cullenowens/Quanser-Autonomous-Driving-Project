@@ -1,8 +1,13 @@
 import threading
 import time
 from pynput import keyboard
+import sys
+from pathlib import Path
 
 import time
+
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(parent_dir))
 
 from Libraries.pal.products.qcar import QCar, IS_PHYSICAL_QCAR
 from Libraries.pal.utilities.scope import Signal

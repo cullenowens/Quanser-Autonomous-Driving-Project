@@ -7,6 +7,11 @@ Skills activity code for image interpretation lab guide.
 Students will perform camera calibration along with line detection.
 Please review Lab Guide - Image Interpretation PDF
 """
+import sys
+from pathlib import Path
+parent_dir = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(parent_dir))
+
 from Libraries.pal.products.qcar import QCarCameras,QCarRealSense, IS_PHYSICAL_QCAR
 from Libraries.hal.utilities.image_processing import ImageProcessing
 import time

@@ -8,6 +8,11 @@ High-level summary of the python file with a description of which PDFs
 accompany the python example.      
 '''
 import sys
+from pathlib import Path
+parent_dir = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(parent_dir))
+
+import sys
 import numpy as np
 from qvl.qlabs import QuanserInteractiveLabs
 from qvl.basic_shape import QLabsBasicShape
@@ -43,9 +48,9 @@ if clearEnv == "y":
 # Determine checkerboard height and width. 
 # Actual dimensions will be larger to include the border
 text = "Please specify the side length (number of cells) for a square chess board (integer): "
-dimension = int(input(text))
+dimension = int(input(text))    #7
 text = "Please specify the size of each cell used for camera calibration (floating point): "
-boxSize = float(input(text))
+boxSize = float(input(text))    #1.25
 
 # Setup QLabs camera for camera calibration scene
 freeCamera = QLabsFreeCamera(qlabs)
@@ -179,7 +184,7 @@ try:
     print("Initial Location of Board: ", initLocationBoard)
     while True:
         text = "Enter location of checkerboard in space X,Y,Z,Roll,Pitch,Yaw. All values should be floating points, separated by a comma, and angles in radians:.. "
-        checkerBoardPose = input(text)
+        checkerBoardPose = input(text)  #0,20,5,0,0,0
         userDefinedLocation = np.array(checkerBoardPose.split(","), dtype= np.float32)
         numLocations = len(userDefinedLocation)
         print("your input is: ",userDefinedLocation )

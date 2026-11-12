@@ -13,6 +13,11 @@ Please review Lab Guide - Sensor Interfacing PDF
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+import sys
+from pathlib import Path
+
+parent_dir = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(parent_dir))
 
 from Libraries.pal.products.qcar import QCar, IS_PHYSICAL_QCAR
 from Libraries.pal.utilities.stream import BasicStream , Timeout
